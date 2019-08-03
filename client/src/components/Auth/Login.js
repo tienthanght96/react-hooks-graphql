@@ -1,39 +1,49 @@
-import React from "react";
+import React, { useContext } from "react";
 import { GraphQLClient } from 'graphql-request';
 import { GoogleLogin } from 'react-google-login';
 import { withStyles } from "@material-ui/core/styles";
-// import Typography from "@material-ui/core/Typography";
-
-const ME_QUERY = `
-{
-  me {
-    picture
-    _id
-    email
-    name
-  }
-}
-`
+import { AppContext } from "../../context";
+import { actionTypes } from "../../reducer";
+import Typography from "@material-ui/core/Typography";
+import { ME_QUERY } from "../../graphql/queries";
 
 const Login = ({ classes }) => {
+
+  const { dispatch } = useContext(AppContext)
+  
   const onSuccess = async googleUser => {
-    console.log(googleUser);
-    const idToken = googleUser.getAuthResponse().id_token
-    console.log('idToken', idToken);
-    const client = new GraphQLClient('http://localhost:4000/graphql', {
-      headers: {
-        authorization: idToken
-      }
-    })
-    const data = await client.request(ME_QUERY)
-    console.log('data', data);
+    try {
+      console.log(googleUser);
+      const idToken = googleUser.getAuthResponse().id_token
+      const client = new GraphQLClient('http://localhost:4000/graphql', {
+        headers: {
+          authorization: idToken
+        }
+      })
+      const { me } = await client.request(ME_QUERY)
+      dispatch({ type: actionTypes.LOGIN_USER, payload: me })
+      dispatch({ type: actionTypes.IS_LOGGED_IN, payload: googleUser.isSignedIn() })
+    } catch (error) {
+      onFailure(error)
+    }
   }
+
+  const onFailure = error => {
+    console.log(`Error login ${error}`)
+  }
+
   return (
-    <div>
+    <div className={classes.root}>
+      <Typography component="h1" variant="h3" gutterBottom noWrap style={{ color: 'rgb(66, 133, 244)' }}>
+        Welcome
+      </Typography>
       <GoogleLogin
         clientId="1041503383543-upc08nmjc23jdi28877jo62mh5478bku.apps.googleusercontent.com"
         onSuccess={onSuccess}
+        onFailure={onFailure}
         isSignedIn={true}
+        theme="dark"
+        buttonText="Login with Google"
       />
     </div>
   );
