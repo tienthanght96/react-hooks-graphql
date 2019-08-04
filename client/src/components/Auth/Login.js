@@ -6,6 +6,7 @@ import { AppContext } from "../../context";
 import { actionTypes } from "../../reducer";
 import Typography from "@material-ui/core/Typography";
 import { ME_QUERY } from "../../graphql/queries";
+import { BASE_URL } from "../../client";
 
 const Login = ({ classes }) => {
 
@@ -15,7 +16,7 @@ const Login = ({ classes }) => {
     try {
       console.log(googleUser);
       const idToken = googleUser.getAuthResponse().id_token
-      const client = new GraphQLClient('http://localhost:4000/graphql', {
+      const client = new GraphQLClient(BASE_URL, {
         headers: {
           authorization: idToken
         }

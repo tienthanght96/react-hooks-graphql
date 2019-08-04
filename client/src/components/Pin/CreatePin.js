@@ -1,6 +1,5 @@
 import React, { useState, useContext } from "react";
 import axios from 'axios';
-import { GraphQLClient } from 'graphql-request';
 import { withStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
@@ -12,8 +11,12 @@ import SaveIcon from "@material-ui/icons/SaveTwoTone";
 import { AppContext } from "../../context";
 import { actionTypes } from "../../reducer";
 import { CREATE_PIN_MUTATION } from "../../graphql/mutations";
+import { useClient } from "../../client";
+
 
 const CreatePin = ({ classes }) => {
+  const client = useClient()
+
   const [ title, setTitle ] = useState("")
   const [ image, setImage ] = useState("")
   const [ content, setContent ] = useState("")
@@ -31,12 +34,6 @@ const CreatePin = ({ classes }) => {
     event.preventDefault()
     setRequesting(true)
     try {
-      const id_token = window.gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token
-      const client = new GraphQLClient('http://localhost:4000/graphql', {
-        headers: {
-          authorization: id_token
-        }
-      })
       const url = await handleImageUpload()
       const { latitude, longitude } = state.draft
       const variables = {
@@ -47,6 +44,7 @@ const CreatePin = ({ classes }) => {
         longitude
       }
       const { createPin } = await client.request(CREATE_PIN_MUTATION , variables)
+      dispatch({ type: actionTypes.CREATE_PIN, payload: createPin })
       console.log({ createPin });
       setRequesting(false)
       handleDeleteDraft()

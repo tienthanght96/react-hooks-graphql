@@ -7,7 +7,7 @@ import MapIcon from "@material-ui/icons/Map";
 import Typography from "@material-ui/core/Typography";
 import Signout from './Auth/Signout';
 
-const Header = ({ classes }) => {
+const Header = React.memo(({ classes }) => {
   const { state } = useContext(AppContext)
   const { currentUser } = state
 
@@ -33,7 +33,7 @@ const Header = ({ classes }) => {
       </AppBar>
     </header>
   );
-};
+})
 
 const styles = theme => ({
   root: {

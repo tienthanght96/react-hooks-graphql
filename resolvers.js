@@ -10,11 +10,15 @@ const authenticated = next => (root, args, context, info) => {
 
 module.exports = {
   Query: {
-    me: authenticated((root, args, context, info) => context.currentUser)
+    me: authenticated((root, args, context, info) => context.currentUser),
+    getPins: async (root, args, context, info) => {
+      const pins = await Pin.find({}).populate('author').populate('comments.author')
+      return pins
+    },
   },
   Mutation: {
     createPin: authenticated(
-      async (root, args, context, info) => {
+      async (root, args, context) => {
         try {
           const newPin = await new Pin({
             ...args.input,
@@ -27,6 +31,33 @@ module.exports = {
           return error
         }
       }
-    )
-  }
+    ),
+    deletePin: authenticated(
+      async (root, args, context) => {
+        try {
+          const pinDeleted = await Pin.findOneAndDelete({ _id: args.pinId }).exec()
+          return pinDeleted
+        } catch (error) {
+          return null
+        }
+      }
+    ),
+    createComment: authenticated(
+      async (root, args, context) => {
+        try {
+          const newComment = { text: args.text, author: context.currentUser._id }
+          const pinUpdated = Pin.findOneAndUpdate(
+            { _id: args.pinId },
+            { $push: { comments: newComment } },
+            { new: true }
+          )
+            .populate('author')
+            .populate('comments.author')
+          return pinUpdated
+        } catch (error) {
+          return null
+        }
+      }
+    ),
+  },
 }
