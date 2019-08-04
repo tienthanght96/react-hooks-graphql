@@ -3,7 +3,8 @@ export const actionTypes = {
   LOGIN_USER: 'LOGIN_USER',
   SIGNOUT_USER: 'SIGNOUT_USER',
   CREATE_DRAFT: 'CREATE_DRAFT',
-  UPDATE_DRAFT_LOCATION: 'UPDATE_DRAFT_LOCATION'
+  UPDATE_DRAFT_LOCATION: 'UPDATE_DRAFT_LOCATION',
+  DELETE_DRARFT: 'DELETE_DRARFT',
 }
 
 export function reducer(state, { type, payload }) {
@@ -18,6 +19,8 @@ export function reducer(state, { type, payload }) {
       return Object.assign({}, state, { draft: { latitude: 0, longitude: 0 } })
     case actionTypes.UPDATE_DRAFT_LOCATION:
       return Object.assign({}, state, { draft: payload })
+    case actionTypes.DELETE_DRARFT:
+      return Object.assign({}, state, { draft: null })
     default:
       return state
   }
